@@ -14,8 +14,7 @@ import (
 func replaceFile(oldPath, newPath string) error {
 	if err := os.Rename(oldPath, newPath); err != nil {
 		if removeErr := os.Remove(newPath); removeErr != nil {
-			fmt.Fprintf(os.Stderr, "Failed to remove existing file: %s, error: %v", newPath, removeErr)
-			return err
+		    return fmt.Errorf("rename %q to %q failed: %w; removing destination failed: %v", oldPath, newPath, err, removeErr)
 		}
 		return os.Rename(oldPath, newPath)
 	}
