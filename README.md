@@ -61,6 +61,8 @@ If `filename` already exists, it attempts to replace it atomically.
 
 Opens `filename` safely (with `O_NOFOLLOW` on Unix) and decodes its JSON content into `v`.
 
+If the file is empty, `ReadJSON` returns `io.EOF`. Callers that want to treat an empty file as "no state" can check for this error explicitly.
+
 ### `OpenRD(filename string) (*os.File, error)`
 
 Opens a file for reading with `O_RDONLY`. On Unix-like systems, `O_NOFOLLOW` is added.

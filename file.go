@@ -7,12 +7,32 @@ import (
 	"path/filepath"
 )
 
+func filePath(dir, filename string) (string, error) {
+	if filename == "" {
+		return "", fmt.Errorf("filename cannot be empty")
+	}
+	basename := filepath.Base(filename)
+	if filename != basename || basename == "." || basename == ".." || basename == "/" {
+		return "", fmt.Errorf("invalid filename: %s", filename)
+	}
+	return filepath.Join(dir, basename), nil
+}
+
 func FileExists(dir, filename string) bool {
-	_, err := os.Stat(filepath.Join(dir, filename))
+	path, err := filePath(dir, filename)
+	if err != nil {
+		return false
+	}
+	_, err = os.Stat(path)
 	return err == nil
 }
 
 func WriteJSON(dir, filename string, v any) error {
+	destPath, err := filePath(dir, filename)
+	if err != nil {
+		return err
+	}
+
 	newFile, err := os.CreateTemp(dir, "saferio_temp_")
 	if err != nil {
 		return err
@@ -36,20 +56,16 @@ func WriteJSON(dir, filename string, v any) error {
 		return err
 	}
 
-	destination := filepath.Join(dir, filename)
-	if err := os.Rename(newFile.Name(), destination); err != nil {
-		if removeErr := os.Remove(destination); removeErr != nil {
-			return err
-		}
-		return os.Rename(newFile.Name(), destination)
-	}
-	return nil
+	return replaceFile(newFile.Name(), destPath)
 }
 
 func ReadJSON(dir, filename string, v any) error {
-	filename = filepath.Join(dir, filename)
+	filePath, err := filePath(dir, filename)
+	if err != nil {
+		return err
+	}
 
-	file, err := OpenRD(filename)
+	file, err := OpenRD(filePath)
 	if err != nil {
 		return err
 	}

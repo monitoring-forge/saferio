@@ -16,5 +16,5 @@ func OpenAD(filename string) (*os.File, error) {
 	} else if !os.IsNotExist(err) {
 		return nil, err
 	}
-	return openAD(filename)
+	return osOpenAD(filename)
 }

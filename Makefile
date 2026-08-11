@@ -1,8 +1,10 @@
 VERSION=0.0.1
 
-check:
+.PHONY: check lint
+
+check: *.go
 	go test -v ./...
 	go test -race
 
-lint:
+lint: *.go
 	golangci-lint run ./...
