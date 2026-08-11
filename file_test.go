@@ -3,10 +3,47 @@ package saferio
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
 )
+
+func assertFilePathError(t *testing.T, filename string) {
+	t.Helper()
+	_, err := filePath("/tmp/data", filename)
+	if err == nil {
+		t.Errorf("filePath(%q) did not return an error", filename)
+	}
+}
+
+func TestFilePath(t *testing.T) {
+	t.Run("joins dir and filename", func(t *testing.T) {
+		got, err := filePath("/tmp/data", "state.json")
+		if err != nil {
+			t.Fatalf("filePath returned an error: %v", err)
+		}
+		want := filepath.Join("/tmp/data", "state.json")
+		if got != want {
+			t.Errorf("filePath(%q, %q) = %q, want %q", "/tmp/data", "state.json", got, want)
+		}
+	})
+
+	t.Run("rejects empty filename", func(t *testing.T) {
+		assertFilePathError(t, "")
+	})
+
+	t.Run("rejects path traversal", func(t *testing.T) {
+		cases := []string{"../etc/passwd", "subdir/state.json", "a/../b.json", "./file.json", "/", "./", "../", ".", ".."}
+		for _, filename := range cases {
+			assertFilePathError(t, filename)
+		}
+	})
+
+	t.Run("rejects absolute paths", func(t *testing.T) {
+		assertFilePathError(t, "/etc/passwd")
+	})
+}
 
 func TestFileExists(t *testing.T) {
 	tmpDir := t.TempDir()
@@ -25,6 +62,12 @@ func TestFileExists(t *testing.T) {
 	t.Run("non-existing file", func(t *testing.T) {
 		if FileExists(tmpDir, "missing.txt") {
 			t.Errorf("FileExists returned true for non-existing file")
+		}
+	})
+
+	t.Run("ignores path traversal", func(t *testing.T) {
+		if FileExists(tmpDir, "../missing.txt") {
+			t.Errorf("FileExists should not escape dir")
 		}
 	})
 }
@@ -97,15 +140,27 @@ func TestWriteJSON(t *testing.T) {
 	})
 }
 
+func writeFile(t *testing.T, path string, content []byte) {
+	t.Helper()
+	if err := os.WriteFile(path, content, 0644); err != nil {
+		t.Fatalf("failed to create test file: %v", err)
+	}
+}
+
+func assertJSONError(t *testing.T, err error, wantType string) {
+	t.Helper()
+	if err == nil {
+		t.Fatalf("expected an error for %s, got nil", wantType)
+	}
+}
+
 func TestReadJSON(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	t.Run("read valid JSON", func(t *testing.T) {
 		filename := "read.json"
 		path := filepath.Join(tmpDir, filename)
-		if err := os.WriteFile(path, []byte(`{"name":"test","count":3}`+"\n"), 0644); err != nil {
-			t.Fatalf("failed to create test file: %v", err)
-		}
+		writeFile(t, path, []byte(`{"name":"test","count":3}`+"\n"))
 
 		var got struct {
 			Name  string `json:"name"`
@@ -122,23 +177,30 @@ func TestReadJSON(t *testing.T) {
 	t.Run("file does not exist", func(t *testing.T) {
 		var v map[string]any
 		err := ReadJSON(tmpDir, "missing.json", &v)
-		if err == nil {
-			t.Fatal("expected an error for missing file, got nil")
+		assertJSONError(t, err, "missing file")
+	})
+
+	t.Run("empty file", func(t *testing.T) {
+		filename := "empty.json"
+		path := filepath.Join(tmpDir, filename)
+		writeFile(t, path, []byte{})
+
+		var v map[string]any
+		err := ReadJSON(tmpDir, filename, &v)
+		assertJSONError(t, err, "empty file")
+		if !errors.Is(err, io.EOF) {
+			t.Errorf("expected io.EOF for empty file, got %T: %v", err, err)
 		}
 	})
 
 	t.Run("invalid JSON", func(t *testing.T) {
 		filename := "invalid.json"
 		path := filepath.Join(tmpDir, filename)
-		if err := os.WriteFile(path, []byte("not json"), 0644); err != nil {
-			t.Fatalf("failed to create test file: %v", err)
-		}
+		writeFile(t, path, []byte("not json"))
 
 		var v map[string]any
 		err := ReadJSON(tmpDir, filename, &v)
-		if err == nil {
-			t.Fatal("expected an error for invalid JSON, got nil")
-		}
+		assertJSONError(t, err, "invalid JSON")
 		var syntaxErr *json.SyntaxError
 		if !errors.As(err, &syntaxErr) {
 			t.Errorf("expected a JSON syntax error, got %T: %v", err, err)
