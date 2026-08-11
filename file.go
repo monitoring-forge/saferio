@@ -56,7 +56,7 @@ func WriteJSON(dir, filename string, v any) error {
 		return err
 	}
 
-	return os.Rename(newFile.Name(), destPath)
+	return replaceFile(newFile.Name(), destPath)
 }
 
 func ReadJSON(dir, filename string, v any) error {
