@@ -5,6 +5,11 @@ import (
 	"os"
 )
 
+// OpenRD opens a file for reading with appropriate flags to prevent symlink attacks.
+func OpenRD(filename string) (*os.File, error) {
+	return osOpenRD(filename)
+}
+
 // OpenAD opens a file for appending with appropriate flags to prevent symlink attacks.
 // It first checks if the file is a symlink using os.Lstat. If it is, an error is returned.
 // If the file does not exist, it proceeds to open the file for appending.
