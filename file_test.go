@@ -45,6 +45,39 @@ func TestFilePath(t *testing.T) {
 	})
 }
 
+func TestStat(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	t.Run("existing file", func(t *testing.T) {
+		path := filepath.Join(tmpDir, "exists.txt")
+		if err := os.WriteFile(path, []byte("data"), 0644); err != nil {
+			t.Fatalf("failed to create test file: %v", err)
+		}
+
+		fi, err := Stat(tmpDir, "exists.txt")
+		if err != nil {
+			t.Fatalf("Stat returned an error: %v", err)
+		}
+		if fi.Name() != "exists.txt" {
+			t.Errorf("Stat returned wrong file name: got %q, want %q", fi.Name(), "exists.txt")
+		}
+	})
+
+	t.Run("non-existing file", func(t *testing.T) {
+		_, err := Stat(tmpDir, "missing.txt")
+		if err == nil {
+			t.Errorf("Stat did not return an error for non-existing file")
+		}
+	})
+
+	t.Run("ignores path traversal", func(t *testing.T) {
+		_, err := Stat(tmpDir, "../missing.txt")
+		if err == nil {
+			t.Errorf("Stat should not escape dir")
+		}
+	})
+}
+
 func TestFileExists(t *testing.T) {
 	tmpDir := t.TempDir()
 
