@@ -18,12 +18,16 @@ func filePath(dir, filename string) (string, error) {
 	return filepath.Join(dir, basename), nil
 }
 
-func FileExists(dir, filename string) bool {
+func Stat(dir, filename string) (os.FileInfo, error) {
 	path, err := filePath(dir, filename)
 	if err != nil {
-		return false
+		return nil, err
 	}
-	_, err = os.Stat(path)
+	return os.Stat(path)
+}
+
+func FileExists(dir, filename string) bool {
+	_, err := Stat(dir, filename)
 	return err == nil
 }
 
