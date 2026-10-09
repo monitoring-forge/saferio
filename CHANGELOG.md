@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.0.4](https://github.com/monitoring-forge/saferio/compare/v0.0.3...v0.0.4) - 2026-10-09
+
+- go: bump github.com/stretchr/testify from 1.12.0 to 1.12.1 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/saferio/pull/11
+- ci: bump Songmu/tagpr from 1.20.1 to 1.20.2 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/saferio/pull/12
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/saferio/pull/14
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/saferio/pull/16
+- ci: bump Songmu/tagpr from 1.20.2 to 1.20.3 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/saferio/pull/15
+- ci: bump Songmu/tagpr from 1.20.3 to 1.21.1 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/saferio/pull/17
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/saferio/pull/18
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/saferio/pull/19
+
 ## [v0.0.3](https://github.com/monitoring-forge/saferio/compare/v0.0.2...v0.0.3) - 2026-08-29
 
 - go: bump github.com/stretchr/testify from 1.11.1 to 1.12.0 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/saferio/pull/7
