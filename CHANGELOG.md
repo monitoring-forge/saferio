@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.0.5](https://github.com/monitoring-forge/saferio/compare/v0.0.4...v0.0.5) - 2026-11-03
+
+- ci: bump Songmu/tagpr from 1.21.3 to 1.21.4 in the tagpr group by @dependabot[bot] in https://github.com/monitoring-forge/saferio/pull/24
+- go: bump go.yaml.in/yaml/v3 from 3.0.5 to 3.0.6 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/saferio/pull/25
+
 ## [v0.0.4](https://github.com/monitoring-forge/saferio/compare/v0.0.3...v0.0.4) - 2026-10-28
 
 - go: bump github.com/stretchr/testify from 1.12.0 to 1.12.1 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/saferio/pull/11
